@@ -19,7 +19,14 @@ variable default_route_id {
     type=string
 }
 
-variable vrd_subnets{
+variable vrd_dmz_subnet{
+    type = list(object({
+        name = string
+        cidr = list(string)
+    }))
+    default = []
+}
+variable vrd_private_subnet{
     type = list(object({
         name = string
         cidr = list(string)
