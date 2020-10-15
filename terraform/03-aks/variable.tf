@@ -12,17 +12,9 @@ variable default_vnet {
     type = string
 }
 
-variable resourcegroup {
+variable k8s_resourcegroup {
     type = string
     default="skgc-vrd-prod-koce-app-rg"
-}
-variable default_resourcegroup {
-    type = string
-}
-
-variable nodepool_vm_size {
-    type = string
-    default= "Standard_D4_v3"
 }
 
 variable k8s_subnet_id {
@@ -30,8 +22,9 @@ variable k8s_subnet_id {
     default =""
 }
 
-variable default_route_id {
+variable nodepool_vm_size {
     type = string
+    default= "Standard_D4_v3"
 }
 
 variable client_id {

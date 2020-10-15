@@ -1,32 +1,3 @@
-# resource "azurerm_kubernetes_cluster" "skgc-vrd-prod-app-aks" {
-#   name                = "skgc-vrd-prod-app-aks"
-#   location            = var.location
-#   resource_group_name = var.resourcegroup
-#   dns_prefix          = "vrd-aks-app-dns"
-
-#   default_node_pool {
-#     name       = "default"
-#     node_count = 3
-#     vm_size    = "Standard_D2_v2"
-#   }
-
-#   # service_principal {
-#   #   client_id     = "00000000-0000-0000-0000-000000000000"
-#   #   client_secret = "00000000000000000000000000000000"
-#   # }
-# }
-
-# resource "azurerm_kubernetes_cluster_node_pool" "example" {
-#   name                  = "internal"
-#   kubernetes_cluster_id = azurerm_kubernetes_cluster.example.id
-#   vm_size               = "Standard_DS2_v2"
-#   node_count            = 1
-
-#   tags = {
-#     Environment = "Production"
-#   }
-# }
-
 terraform {
   required_providers {
     azurerm = {
@@ -45,7 +16,7 @@ resource "azurerm_kubernetes_cluster" "vrd-aks" {
   name                    = "vrd-prod-aks"
   location                = var.location
   kubernetes_version      = "1.17.11"
-  resource_group_name     = var.resourcegroup
+  resource_group_name     = var.k8s_resourcegroup
   dns_prefix              = "vrd-aks"
   private_cluster_enabled = true
 
