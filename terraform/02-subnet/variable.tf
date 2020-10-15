@@ -33,7 +33,3 @@ variable vrd_private_subnet{
     }))
     default = []
 }
-# variable vrd_prod_subnets{
-#     type = map
-#     default = {}
-# }
