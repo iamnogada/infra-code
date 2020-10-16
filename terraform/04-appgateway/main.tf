@@ -1,32 +1,3 @@
-# resource "azurerm_kubernetes_cluster" "skgc-vrd-prod-app-aks" {
-#   name                = "skgc-vrd-prod-app-aks"
-#   location            = var.location
-#   resource_group_name = var.resourcegroup
-#   dns_prefix          = "vrd-aks-app-dns"
-
-#   default_node_pool {
-#     name       = "default"
-#     node_count = 3
-#     vm_size    = "Standard_D2_v2"
-#   }
-
-#   # service_principal {
-#   #   client_id     = "00000000-0000-0000-0000-000000000000"
-#   #   client_secret = "00000000000000000000000000000000"
-#   # }
-# }
-
-# resource "azurerm_kubernetes_cluster_node_pool" "example" {
-#   name                  = "internal"
-#   kubernetes_cluster_id = azurerm_kubernetes_cluster.example.id
-#   vm_size               = "Standard_DS2_v2"
-#   node_count            = 1
-
-#   tags = {
-#     Environment = "Production"
-#   }
-# }
-
 terraform {
   required_providers {
     azurerm = {
@@ -41,35 +12,101 @@ provider "azurerm" {
   features {}
 }
 
-resource "azurerm_kubernetes_cluster" "vrd-aks" {
-  name                    = "vrd-prod-aks"
-  location                = var.location
-  kubernetes_version      = "1.17.11"
-  resource_group_name     = var.resourcegroup
-  dns_prefix              = "vrd-aks"
-  private_cluster_enabled = true
 
-  default_node_pool {
-    name           = "default"
-    node_count     = 3
-    vm_size        = var.nodepool_vm_size
-    vnet_subnet_id = var.k8s_subnet_id
+resource "azurerm_public_ip" "appgw-public-ip" {
+  name                = "appgw-public-ip"
+  location            = var.location
+  resource_group_name = var.resourcegroup
+  allocation_method   = "Dynamic"
+  tags = {
+    "Application or Service Name" = "vrd"
+    "Environment"                 = "prod"
+    "Operated By"                 = "skcc-cloudops"
+    "Owner"                       = "skgc"
+  }
+}
+
+resource "azurerm_application_gateway" "skgc-vrd-prod-appgw" {
+  name                = "skgc-vrd-prod-appgw"
+  resource_group_name = var.resourcegroup
+  location            = var.location
+
+  enable_http2 = true
+  sku {
+    name     = "WAF_Medium"
+    tier     = "WAF"
+    capacity = 2
   }
 
-  # identity {
-  #   type = "SystemAssigned"
+  waf_configuration {
+    enabled          = "true"
+    firewall_mode    = "Prevention"
+    rule_set_type    = "OWASP"
+    rule_set_version = "3.0"
+  }
+
+  gateway_ip_configuration {
+    name      = "subnet"
+    subnet_id = var.dmz_subnet_id
+  }
+
+  frontend_port {
+    name = "http"
+    port = 80
+  }
+  # frontend_port {
+  #   name = "https"
+  #   port = 443
   # }
-  service_principal {
-    client_id     = var.client_id
-    client_secret = var.client_secret
+
+  frontend_ip_configuration {
+    name                 = "frontend"
+    public_ip_address_id = azurerm_public_ip.appgw-public-ip.id
   }
 
-  network_profile {
-    docker_bridge_cidr = "172.17.0.1/16"
-    dns_service_ip     = "10.2.0.10"
-    network_plugin     = "kubenet"
-    network_policy     = "calico"
-    pod_cidr           = "172.110.0.0/16"
-    service_cidr       = "10.2.0.0/24"
+  backend_address_pool {
+    name = "skgc-vrd-aks"
+  }
+
+  http_listener {
+    name                           = "http"
+    frontend_ip_configuration_name = "frontend"
+    frontend_port_name             = "http"
+    protocol                       = "Http"
+  }
+
+  probe {
+    name                = "probe"
+    protocol            = "http"
+    path                = "/"
+    interval            = "30"
+    timeout             = "30"
+    unhealthy_threshold = "3"
+    host = "127.0.0.1"
+  }
+
+  backend_http_settings {
+    name                  = "http"
+    cookie_based_affinity = "Disabled"
+    port                  = 80
+    protocol              = "Http"
+    request_timeout       = 1
+    probe_name            = "probe"
+    
+  }
+
+  request_routing_rule {
+    name                       = "http"
+    rule_type                  = "Basic"
+    http_listener_name         = "http"
+    backend_address_pool_name  = "skgc-vrd-aks"
+    backend_http_settings_name = "http"
+  }
+
+  tags = {
+    "Application or Service Name" = "vrd"
+    "Environment"                 = "prod"
+    "Operated By"                 = "skcc-cloudops"
+    "Owner"                       = "skgc"
   }
 }

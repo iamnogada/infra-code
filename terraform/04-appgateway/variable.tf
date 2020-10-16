@@ -16,28 +16,8 @@ variable resourcegroup {
     type = string
     default="skgc-vrd-prod-koce-app-rg"
 }
-variable default_resourcegroup {
-    type = string
-}
 
-variable nodepool_vm_size {
+variable dmz_subnet_id {
     type = string
-    default= "Standard_D4_v3"
-}
-
-variable k8s_subnet_id {
-    type=string
-    default =""
-}
-
-variable default_route_id {
-    type = string
-}
-
-variable client_id {
-    type = string
-}
-
-variable client_secret {
-    type = string
+    default=""
 }
