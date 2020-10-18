@@ -34,7 +34,9 @@ resource "azurerm_kubernetes_cluster" "vrd-aks" {
     client_id     = var.client_id
     client_secret = var.client_secret
   }
-
+  role_based_access_control {
+    enabled = true
+  }
   network_profile {
     docker_bridge_cidr = "172.17.0.1/16"
     dns_service_ip     = "10.2.0.10"
@@ -45,8 +47,8 @@ resource "azurerm_kubernetes_cluster" "vrd-aks" {
   }
   tags = {
     "Application or Service Name" = "vrd"
-    "Environment" = "prod"
-    "Operated By" = "skcc-cloudops"
-    "Owner" = "skgc"
+    "Environment"                 = "prod"
+    "Operated By"                 = "skcc-cloudops"
+    "Owner"                       = "skgc"
   }
 }
