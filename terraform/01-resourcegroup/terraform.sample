@@ -12,4 +12,5 @@ resourcegroups = {
     "skgc-vrd-prod-koce-data-rg":"prod"
     "skgc-vrd-prod-koce-ml-rg":"prod"
     "skgc-vrd-prod-koce-other-rg":"prod"
+    "skgc-vrd-prod-koce-devops-rg":"prod"
     }
