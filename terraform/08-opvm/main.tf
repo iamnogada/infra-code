@@ -12,22 +12,43 @@ provider "azurerm" {
   features {}
 }
 
+# resource "azurerm_public_ip" "op_vm_pip" {
+#   name                    = "op_vm_pip"
+#   location            = var.location
+#   resource_group_name = var.resourcegroup
+#   allocation_method       = "Dynamic"
+#   idle_timeout_in_minutes = 30
+
+#   tags = {
+#     "Application or Service Name" = "vrd"
+#     "Environment"                 = "prod"
+#     "Operated By"                 = "skcc-cloudops"
+#     "Owner"                       = "skgc"
+#   }
+# }
 resource "azurerm_network_interface" "op_vm-nic" {
   name                = "${var.op_vm_name}-nic"
   location            = var.location
-  resource_group_name = var.resourcegroup
+  resource_group_name = "skgc-vrd-prod-koce-network-rg"
 
   ip_configuration {
     name                          = "internal"
     subnet_id                     = var.op_subnet_id
     private_ip_address_allocation = "Static"
     private_ip_address ="10.242.16.4"
+    public_ip_address_id          = "/subscriptions/2dbedacf-40ac-4b61-8bdc-a3025e767aee/resourceGroups/skgc-vrd-prod-koce-network-rg/providers/Microsoft.Network/publicIPAddresses/AZvrdbastion001-ip"
+  }
+  tags = {
+    "Application or Service Name" = "vrd"
+    "Environment"                 = "prod"
+    "Operated By"                 = "skcc-cloudops"
+    "Owner"                       = "skgc"
   }
 }
 
 resource "azurerm_linux_virtual_machine" "opvm" {
   name                = var.op_vm_name
-  resource_group_name = var.resourcegroup
+  resource_group_name = "skgc-vrd-prod-koce-network-rg"
   location            = var.location
   size                = "Standard_D2s_v3"
   admin_username      = "adminuser"
@@ -51,6 +72,12 @@ resource "azurerm_linux_virtual_machine" "opvm" {
     sku       = "18.04-LTS"
     version   = "latest"
   }
+  tags = {
+    "Application or Service Name" = "vrd"
+    "Environment"                 = "prod"
+    "Operated By"                 = "skcc-cloudops"
+    "Owner"                       = "skgc"
+  }
 }
 resource "azurerm_network_interface" "vm-nic" {
   name                = "${var.vm_name}-nic"
@@ -62,6 +89,12 @@ resource "azurerm_network_interface" "vm-nic" {
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Static"
     private_ip_address ="10.242.16.70"
+  }
+  tags = {
+    "Application or Service Name" = "vrd"
+    "Environment"                 = "prod"
+    "Operated By"                 = "skcc-cloudops"
+    "Owner"                       = "skgc"
   }
 }
 
@@ -90,5 +123,11 @@ resource "azurerm_linux_virtual_machine" "vm" {
     offer     = "UbuntuServer"
     sku       = "18.04-LTS"
     version   = "latest"
+  }
+  tags = {
+    "Application or Service Name" = "vrd"
+    "Environment"                 = "prod"
+    "Operated By"                 = "skcc-cloudops"
+    "Owner"                       = "skgc"
   }
 }
