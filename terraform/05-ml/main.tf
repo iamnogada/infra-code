@@ -47,6 +47,7 @@ resource "azurerm_storage_account" "skgcvrddevmlstorage" {
   resource_group_name      = var.resourcegroup
   account_tier             = "Standard"
   account_replication_type = "LRS"
+  allow_blob_public_access       = false
 
   tags = {
     "Application or Service Name" = "vrd"
