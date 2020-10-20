@@ -9,6 +9,10 @@ vrd_dmz_subnet = [
     {
         name = "skgc-vrd-dev-koce-dmz-001-subnet" 
         cidr = ["10.242.22.0/26"]
+    },
+    {
+        name = "skgc-vrd-dev-koce-dmz-002-subnet" 
+        cidr = ["10.242.16.64/26"]
     }
 ]
 vrd_private_subnet = [
@@ -42,6 +46,6 @@ vrd_private_subnet = [
     },
     {
         name = "skgc-vrd-prod-koce-devops-001-subnet" 
-        cidr = ["10.242.16.64/26"]
+        cidr = ["10.242.16.0/26"]
     }
 ]

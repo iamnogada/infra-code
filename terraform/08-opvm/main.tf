@@ -35,7 +35,7 @@ resource "azurerm_network_interface" "op_vm-nic" {
     name                          = "internal"
     subnet_id                     = var.op_subnet_id
     private_ip_address_allocation = "Static"
-    private_ip_address ="10.242.16.4"
+    private_ip_address ="10.242.16.70"
     public_ip_address_id          = "/subscriptions/2dbedacf-40ac-4b61-8bdc-a3025e767aee/resourceGroups/skgc-vrd-prod-koce-network-rg/providers/Microsoft.Network/publicIPAddresses/AZvrdbastion001-ip"
   }
   tags = {
@@ -79,16 +79,16 @@ resource "azurerm_linux_virtual_machine" "opvm" {
     "Owner"                       = "skgc"
   }
 }
-resource "azurerm_network_interface" "vm-nic" {
-  name                = "${var.vm_name}-nic"
+resource "azurerm_network_interface" "devops_vm-nic" {
+  name                = "${var.devops_vm_name}-nic"
   location            = var.location
-  resource_group_name = var.resourcegroup
+  resource_group_name = var.devops_resourcegroup
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = var.subnet_id
+    subnet_id                     = var.devops_subnet_id
     private_ip_address_allocation = "Static"
-    private_ip_address ="10.242.16.70"
+    private_ip_address ="10.242.16.4"
   }
   tags = {
     "Application or Service Name" = "vrd"
@@ -98,14 +98,14 @@ resource "azurerm_network_interface" "vm-nic" {
   }
 }
 
-resource "azurerm_linux_virtual_machine" "vm" {
-  name                = var.vm_name
-  resource_group_name = var.resourcegroup
+resource "azurerm_linux_virtual_machine" "devops_vm" {
+  name                = var.devops_vm_name
+  resource_group_name = var.devops_resourcegroup
   location            = var.location
   size                = "Standard_D2s_v3"
   admin_username      = "adminuser"
   network_interface_ids = [
-    azurerm_network_interface.vm-nic.id,
+    azurerm_network_interface.devops_vm-nic.id,
   ]
 
   admin_ssh_key {

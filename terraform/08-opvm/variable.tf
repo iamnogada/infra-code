@@ -8,16 +8,16 @@ variable location {
     default ="koreacentral"
 }
 
-variable resourcegroup {
+variable devops_resourcegroup {
     type = string
     default=""
 }
-variable subnet_id {
+variable devops_subnet_id {
     type=string
     default=""
 }
 
-variable vm_name {
+variable devops_vm_name {
     type = string
     default=""
 }
