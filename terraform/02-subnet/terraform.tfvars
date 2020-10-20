@@ -1,6 +1,8 @@
 default_resourcegroup = "skgc-vrd-prod-koce-network-rg"
 default_route_id="/subscriptions/2dbedacf-40ac-4b61-8bdc-a3025e767aee/resourceGroups/skgc-vrd-prod-koce-network-rg/providers/Microsoft.Network/routeTables/skgc-vrd-prod-koce-001-udr"
 
+
+
 vrd_dmz_subnet = [
     {
         name = "skgc-vrd-prod-koce-dmz-001-subnet" 

@@ -15,6 +15,7 @@ variable default_resourcegroup {
     type=string
 }
 
+
 variable default_route_id {
     type=string
 }

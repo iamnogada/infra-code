@@ -13,18 +13,7 @@ provider "azurerm" {
 }
 
 
-resource "azurerm_public_ip" "appgw-public-ip" {
-  name                = "appgw-public-ip"
-  location            = var.location
-  resource_group_name = var.resourcegroup
-  allocation_method   = "Dynamic"
-  tags = {
-    "Application or Service Name" = "vrd"
-    "Environment"                 = "prod"
-    "Operated By"                 = "skcc-cloudops"
-    "Owner"                       = "skgc"
-  }
-}
+
 
 resource "azurerm_application_gateway" "skgc-vrd-prod-appgw" {
   name                = "skgc-vrd-prod-appgw"
@@ -32,10 +21,13 @@ resource "azurerm_application_gateway" "skgc-vrd-prod-appgw" {
   location            = var.location
 
   enable_http2 = true
+  autoscale_configuration{
+    min_capacity = 1
+    max_capacity = 4
+  }
   sku {
-    name     = "WAF_Medium"
-    tier     = "WAF"
-    capacity = 2
+    name     = "WAF_v2"
+    tier     = "WAF_V2"
   }
 
   waf_configuration {
@@ -61,7 +53,7 @@ resource "azurerm_application_gateway" "skgc-vrd-prod-appgw" {
 
   frontend_ip_configuration {
     name                 = "frontend"
-    public_ip_address_id = azurerm_public_ip.appgw-public-ip.id
+    public_ip_address_id = "/subscriptions/2dbedacf-40ac-4b61-8bdc-a3025e767aee/resourceGroups/skgc-vrd-prod-koce-dmz-rg/providers/Microsoft.Network/publicIPAddresses/skgc-appgw-pip"
   }
 
   backend_address_pool {

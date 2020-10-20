@@ -1,0 +1,31 @@
+controller:
+    image:
+      repository: skgcvrd.azurecr.io/ski/controller
+      tag: "v0.40.2"
+      digest: sha256:e56ed7cc581c0fa70a02a8e568e5cd5fe8c971cf8de82c22fd101366840595e7
+      pullPolicy: IfNotPresent
+    ## Override NGINX template
+    customTemplate:
+      configMapName: ""
+      configMapKey: ""
+  
+    service:
+      enabled: true
+      annotations:
+        service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+      labels: {}
+      loadBalancerIP: "10.242.18.125"
+    admissionWebhooks:
+      patch:
+        enabled: true
+        image:
+          repository: skgcvrd.azurecr.io/ski/kube-webhook-certgen
+          tag: v1.3.0
+          pullPolicy: IfNotPresent
+  defaultBackend:
+    image:
+      repository: skgcvrd.azurecr.io/ski/defaultbackend-amd64
+      tag: "1.5"
+      pullPolicy: IfNotPresent
+      # nobody user -> uid 65534
+      runAsUser: 65534
