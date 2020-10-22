@@ -1,12 +1,12 @@
 variable name { type = string } #skgc-vrd-prod-koce-001-udr
 variable location { type = string }
-variable rg-name { type = string }
+variable rg { type = string }
 variable tags { }
 
 resource "azurerm_route_table" "routetable" {
   name                          = "${var.name}-001-udr"
   location                      = var.location
-  resource_group_name           = var.rg-name
+  resource_group_name           = var.rg
   disable_bgp_route_propagation = false
 
   route = [

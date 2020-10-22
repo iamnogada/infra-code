@@ -10,8 +10,8 @@ variable mgr {
   })
   default = {
     name = "mgr"
-    ip = "10.242.16.36"
-    size = "Standard_D2s_v3"    
+    ip   = "10.242.16.36"
+    size = "Standard_D2s_v3"
     cidr = ["10.242.16.32/27"]
   }
 }
@@ -23,53 +23,53 @@ variable mgr {
 
 
 
-module "mgr-subnet" {
-  source    = "../modules/subnet"
-  name      = "${local.owner}-${local.service}-${local.env}-${local.center}-${var.mgr.name}" #"skgc-vrd-prod-mgr-koce"
-  rg-name   = var.nw-rg-name
-  vnet-name = var.vnet-name
-  cidr      = var.mgr.cidr
+module "mgr" {
+  source = "../modules/subnet"
+  name   = "${module.const.long-name}-${var.mgr.name}" #"skgc-vrd-prod-mgr-koce"
+  rg     = module.const.rg
+  vnet   = module.const.vnet
+  cidr   = var.mgr.cidr
 
 }
 
-resource "azurerm_resource_group" "mgr-rg" {
-  name     = "${local.owner}-${local.service}-${local.env}-${local.center}-${var.mgr.name}-rg"
-  location = var.location
-  tags     = local.tags
+resource "azurerm_resource_group" "mgr" {
+  name     = "${module.const.long-name}-${var.mgr.name}-rg"
+  location = module.const.location
+  tags     = module.const.tags
 }
-resource "azurerm_public_ip" "mgr-pip" {
-  name                = "Az${var.mgr.name}-pip"
-  resource_group_name = azurerm_resource_group.mgr-rg.name
-  location            = azurerm_resource_group.mgr-rg.location
+resource "azurerm_public_ip" "mgr" {
+  name                = "AZ${var.mgr.name}-pip"
+  resource_group_name = azurerm_resource_group.mgr.name
+  location            = azurerm_resource_group.mgr.location
   allocation_method   = "Dynamic"
   domain_name_label   = "skgcvrd${var.mgr.name}"
 
-  tags = local.tags
+  tags = module.const.tags
 }
 
-resource "azurerm_network_interface" "mgr-nic" {
-  name                = "Az${var.mgr.name}-nic"
-  resource_group_name = azurerm_resource_group.mgr-rg.name
-  location            = azurerm_resource_group.mgr-rg.location
+resource "azurerm_network_interface" "mgr" {
+  name                = "AZ${var.mgr.name}-nic"
+  resource_group_name = azurerm_resource_group.mgr.name
+  location            = azurerm_resource_group.mgr.location
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = module.mgr-subnet.id
+    subnet_id                     = module.mgr.id
     private_ip_address_allocation = "Static"
     private_ip_address            = var.mgr.ip
-    public_ip_address_id          = azurerm_public_ip.mgr-pip.id
+    public_ip_address_id          = azurerm_public_ip.mgr.id
   }
-  depends_on = [module.mgr-subnet]
-  tags       = local.tags
+  depends_on = [module.mgr]
+  tags       = module.const.tags
 }
-resource "azurerm_linux_virtual_machine" "mgr-vm" {
-  name                = "Az${var.mgr.name}"
-  resource_group_name = azurerm_resource_group.mgr-rg.name
-  location            = azurerm_resource_group.mgr-rg.location
+resource "azurerm_linux_virtual_machine" "mgr" {
+  name                = "AZ${var.mgr.name}"
+  resource_group_name = azurerm_resource_group.mgr.name
+  location            = azurerm_resource_group.mgr.location
   size                = var.mgr.size
   admin_username      = "adminuser"
   network_interface_ids = [
-    azurerm_network_interface.mgr-nic.id,
+    azurerm_network_interface.mgr.id,
   ]
 
   admin_ssh_key {
@@ -78,7 +78,7 @@ resource "azurerm_linux_virtual_machine" "mgr-vm" {
   }
 
   os_disk {
-    name                 = "Az${var.mgr.name}-osdisk"
+    name                 = "AZ${var.mgr.name}-osdisk-001"
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }
@@ -89,6 +89,6 @@ resource "azurerm_linux_virtual_machine" "mgr-vm" {
     sku       = "18.04-LTS"
     version   = "latest"
   }
-  depends_on = [azurerm_network_interface.mgr-nic]
-  tags       = local.tags
+  depends_on = [azurerm_network_interface.mgr]
+  tags       = module.const.tags
 }

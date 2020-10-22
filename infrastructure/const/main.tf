@@ -1,0 +1,42 @@
+
+variable "owner"{
+    default="skgc"
+}
+variable "service"{
+    default="vrd"
+}
+variable "env"{
+    # required
+}
+variable "center"{
+    default="koce"
+}
+variable "operator"{
+    default="skcc-cloudops"
+}
+
+output "location" { value = "koreacentral" }
+output "vnet" { value = "vrd-001-vnet" }
+output "udr" { value = "skgc-vrd-prod-koce-001-udr" }
+output "rg" { value = "skgc-vrd-prod-koce-network-rg" }
+
+output "long-name" {
+  value = "${var.owner}-${var.service}-${var.env}-${var.center}"
+}
+output "short-name" {
+  value = "${var.owner}${var.service}"
+}
+
+output "owner" { value = var.owner}
+output "service" { value = var.service}
+output "env" { value = var.env}
+output "center" { value = var.center}
+
+output "tags" {
+    value={
+      "Application or Service Name" = var.service
+      "Environment"                 = var.env
+      "Operated By"                 = var.operator
+      "Owner"                       = var.owner
+    }
+}

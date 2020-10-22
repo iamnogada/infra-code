@@ -17,47 +17,48 @@ variable aks {
   }
 }
 
-# define in env exported : TF_VAR_client_id, TF_VAR_client_secret
+######## define in env exported : TF_VAR_client_id, TF_VAR_client_secret
 variable client_id {}
 variable client_secret {}
-########################################################################
-##  aks
-########################################################################
-resource "azurerm_resource_group" "aks-rg" {
-  name     = "${local.owner}-${local.service}-${local.env}-${local.center}-aks-rg"
-  location = var.location
-  tags     = local.tags
-}
 
-module "aks-subnet" {
-  source    = "../modules/subnet"
-  name      = "${local.owner}-${local.service}-${local.env}-${local.center}-aks" #"skgc-vrd-prod-devops-koce"
-  rg-name   = "skgc-vrd-prod-koce-network-rg"
-  vnet-name = "vrd-001-vnet"
-  cidr      = var.aks.cidr
-
-}
-
+######## import udr
 data "azurerm_route_table" "udr" {
-  name                = var.udr-name
-  resource_group_name = var.nw-rg-name
+  name                = module.const.udr
+  resource_group_name = module.const.rg
 }
 
-# assign hub routing rule
+######## subnet
+module "aks" {
+  source = "../modules/subnet"
+  name   = "${module.const.long-name}-${var.aks.name}" #"skgc-vrd-prod-devops-koce"
+  rg     = module.const.rg
+  vnet   = module.const.vnet
+  cidr   = var.aks.cidr
+
+}
+
+######## assign hub routing rule
 resource "azurerm_subnet_route_table_association" "udr-association" {
-  subnet_id      = module.aks-subnet.id
+  subnet_id      = module.aks.id
   route_table_id = data.azurerm_route_table.udr.id
 
-  depends_on = [module.aks-subnet]
+  depends_on = [module.aks]
+}
+
+########  aks
+resource "azurerm_resource_group" "aks" {
+  name     = "${module.const.long-name}-aks-rg"
+  location = module.const.location
+  tags     = module.const.tags
 }
 
 resource "azurerm_kubernetes_cluster" "aks" {
-  name                = "${local.owner}-${local.service}-${local.env}-${local.center}-aks"
-  resource_group_name = azurerm_resource_group.aks-rg.name
-  location            = azurerm_resource_group.aks-rg.location
+  name                = "${module.const.long-name}-aks"
+  resource_group_name = azurerm_resource_group.aks.name
+  location            = azurerm_resource_group.aks.location
 
   kubernetes_version = var.aks.version
-  dns_prefix         = "${local.owner}-${local.service}-${local.env}-aks"
+  dns_prefix         = "${module.const.long-name}-aks"
 
   #TODO: Fixto private later
   private_cluster_enabled = false
@@ -73,7 +74,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     name           = "default"
     node_count     = 3
     vm_size        = var.aks.size
-    vnet_subnet_id = module.aks-subnet.id
+    vnet_subnet_id = module.aks.id
   }
 
   service_principal {
@@ -91,6 +92,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
     pod_cidr           = "172.110.0.0/16"
     service_cidr       = "10.2.0.0/24"
   }
-  depends_on = [module.aks-subnet]
-  tags       = local.tags
+  depends_on = [module.aks]
+  tags       = module.const.tags
 }

@@ -26,71 +26,72 @@ variable acr {
 ##  devops : subnet, resource-group, network-interface, vm
 ########################################################################
 
-# import udr
-
-module "devops-subnet" {
-  source    = "../modules/subnet"
-  name      = "${local.owner}-${local.service}-${local.env}-${local.center}-${var.devops.name}" #"skgc-vrd-prod-devops-koce"
-  rg-name   = var.nw-rg-name
-  vnet-name = var.vnet-name
-  cidr      = var.devops.cidr
-
-}
-
+######## import udr
 data "azurerm_route_table" "udr" {
-  name                = var.udr-name
-  resource_group_name = var.nw-rg-name
+  name                = module.const.udr
+  resource_group_name = module.const.rg
 }
 
-# assign hub routing rule
+######## subnet
+module "devops" {
+  source = "../modules/subnet"
+  name   = "${module.const.long-name}-${var.devops.name}" #"skgc-vrd-prod-devops-koce"
+  rg     = module.const.rg
+  vnet   = module.const.vnet
+  cidr   = var.devops.cidr
+
+}
+
+######## assign hub routing rule
 resource "azurerm_subnet_route_table_association" "udr-association" {
-  subnet_id      = module.devops-subnet.id
+  subnet_id      = module.devops.id
   route_table_id = data.azurerm_route_table.udr.id
 
-  depends_on = [module.devops-subnet]
-}
-#container registry
-resource "azurerm_resource_group" "acr-rg" {
-  name     = "${local.owner}-${local.service}-${local.env}-${local.center}-${var.acr.name}-rg"
-  location = var.location
-  tags     = local.tags
+  depends_on = [module.devops]
 }
 
+######## container registry resource
+resource "azurerm_resource_group" "acr" {
+  name     = "${module.const.long-name}-${var.acr.name}-rg"
+  location = module.const.location
+  tags     = module.const.tags
+}
 resource "azurerm_container_registry" "acr" {
-  name                = "${local.owner}${local.service}"
-  resource_group_name = azurerm_resource_group.acr-rg.name
-  location            = azurerm_resource_group.acr-rg.location
+  name                = "${module.const.owner}registry"
+  resource_group_name = azurerm_resource_group.acr.name
+  location            = azurerm_resource_group.acr.location
   sku                 = "Premium"
   admin_enabled       = true
 }
-# devops
-resource "azurerm_resource_group" "devops-rg" {
-  name     = "${local.owner}-${local.service}-${local.env}-${local.center}-${var.devops.name}-rg"
-  location = var.location
-  tags     = local.tags
+
+######## devops resource
+resource "azurerm_resource_group" "devops" {
+  name     = "${module.const.long-name}-${var.devops.name}-rg"
+  location = module.const.location
+  tags     = module.const.tags
 }
-resource "azurerm_network_interface" "devops-nic" {
-  name                = "Az${var.devops.name}-nic"
-  resource_group_name = azurerm_resource_group.devops-rg.name
-  location            = azurerm_resource_group.devops-rg.location
+resource "azurerm_network_interface" "devops" {
+  name                = "AZ${var.devops.name}-nic"
+  resource_group_name = azurerm_resource_group.devops.name
+  location            = azurerm_resource_group.devops.location
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = module.devops-subnet.id
+    subnet_id                     = module.devops.id
     private_ip_address_allocation = "Static"
     private_ip_address            = var.devops.ip
   }
-  depends_on = [module.devops-subnet]
-  tags       = local.tags
+  depends_on = [module.devops]
+  tags       = module.const.tags
 }
-resource "azurerm_linux_virtual_machine" "devops-vm" {
-  name                = "Az${var.devops.name}"
-  resource_group_name = azurerm_resource_group.devops-rg.name
-  location            = azurerm_resource_group.devops-rg.location
+resource "azurerm_linux_virtual_machine" "devops" {
+  name                = "AZ${var.devops.name}"
+  resource_group_name = azurerm_resource_group.devops.name
+  location            = azurerm_resource_group.devops.location
   size                = var.devops.size
   admin_username      = "adminuser"
   network_interface_ids = [
-    azurerm_network_interface.devops-nic.id,
+    azurerm_network_interface.devops.id,
   ]
 
   admin_ssh_key {
@@ -99,7 +100,7 @@ resource "azurerm_linux_virtual_machine" "devops-vm" {
   }
 
   os_disk {
-    name                 = "Az${var.devops.name}-osdisk"
+    name                 = "AZ${var.devops.name}-osdisk-001"
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
     disk_size_gb         = 100
@@ -111,6 +112,6 @@ resource "azurerm_linux_virtual_machine" "devops-vm" {
     sku       = "18.04-LTS"
     version   = "latest"
   }
-  depends_on = [azurerm_network_interface.devops-nic]
-  tags       = local.tags
+  depends_on = [azurerm_network_interface.devops]
+  tags       = module.const.tags
 }
