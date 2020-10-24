@@ -1,0 +1,4 @@
+Export-AppServiceCertificate -loginId seungil.han@skhcmanudt.onmicrosoft.com -subscriptionId b9301f45-7da5-41f6-9125-1331de94f262 -resourceGroupName skcc-vrd-dev-koce-resource-rg -name all-skgcvrd
+
+
+1Q4oYpCqLkr5xgIDvN2jyX0SKHs6FObtMwGimRE9UeVZJABTPc

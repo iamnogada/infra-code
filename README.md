@@ -66,7 +66,7 @@ ref: https://www.terraform.io/docs/providers/azurerm/index.html
    ``` sh
    SUBSCRIPTION_NAME="skgc-vrd"
    SP_FILE=./sp.json
-   SUBSCRIPTION_ID=$(az account list | jq --arg name $SUBSCRIPTION_NAME '.[] | select(.name == $name) | .id' -r)
+   export SUBSCRIPTION_ID=$(az account list | jq --arg name $SUBSCRIPTION_NAME '.[] | select(.name == $name) | .id' -r)
    export ARM_CLIENT_ID=$(jq '.appId' $SP_FILE -r)
    export ARM_CLIENT_SECRET=$(jq '.password' $SP_FILE -r)
    export ARM_TENANT_ID=$(jq '.tenant' $SP_FILE -r)
@@ -82,4 +82,4 @@ ref: https://www.terraform.io/docs/providers/azurerm/index.html
 
 1. cd ./common
 2. terraform init
-3.  
+
