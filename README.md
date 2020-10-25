@@ -12,6 +12,9 @@ ref: https://www.terraform.io/docs/providers/azurerm/index.html
 4. [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 5. util : [jq](https://stedolan.github.io/jq/manual/), yq
 
+## guide for terraform
+[doc](doc/overview.md)
+
 ## provisioning
 
 ### pre-requisite
