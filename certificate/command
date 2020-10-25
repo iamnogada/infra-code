@@ -1,0 +1,31 @@
+PFX_FILE=....
+PASSWD=
+
+ajBCc8SI1gklhpEKrRZwietyFLWN6UxfGmT2475zYX0bOoAPdQ
+
+openssl pkcs12 -in $PFX_FILE.pfx -out $PFX_FILE-nopass.pem -nodes -passin stdin
+openssl pkcs12 -export -out certificate.pfx -inkey privateKey.key -in certificate.crt -certfile CACert.crt
+
+
+
+
+1. extract crt from pfx : 
+   openssl pkcs12 -clcerts -nokeys -in $PFX_FILE.pfx -out $PFX_FILE.crt -passin stdin
+
+2. extract ca from pfx : 
+   openssl pkcs12 -cacerts -nokeys -in $PFX_FILE.pfx -out $PFX_FILE.ca -passin stdin
+
+3. extract private key from pfx : enter temporary password twice
+   openssl pkcs12 -nocerts -in $PFX_FILE.pfx -out $PFX_FILE.key -passin stdin
+
+4. remove password in privae key : 
+   openssl rsa -in $PFX_FILE.key -out $PFX_FILE-nopass.key -passin stdin
+
+5. create new pem : 
+   cat $PFX_FILE-nopass.key $PFX_FILE.crt $PFX_FILE.ca > $PFX_FILE-nopass.pem
+
+6. convert pem from pfx : 
+   openssl pkcs12 -export -nodes -CAfile $PFX_FILE.ca -in $PFX_FILE-nopass.pem  -out $PFX_FILE-nopass.pfx
+
+cat $PFX_FILE.Key $PFX_FILE.crt $PFX_FILE.ca > $PFX_FILE-nopass.pem
+   openssl pkcs12 -export -nodes -CAfile $PFX_FILE.ca -in $PFX_FILE-nopass.pem  -out $PFX_FILE-nopass.pfx
