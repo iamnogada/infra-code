@@ -50,11 +50,15 @@
     }
   ]
   ```
-  
+
 - env에 값 설정 : export TF_VAR_[변수명]=[value]
 - argument로 변수 값 전달 : terraform apply/plan -var 'region=us-west-2'
 
 ## run
 
 - plan : terraform plan  
-  
+  dry run으로서 현재 저장된 상태를 기준으로 자원의 변화를 확인
+- apply : terraform apply  [-auto-approve]
+  실행을 통해 변경 상태를 state에 저장하고, approve를 통해 실행 함
+- destroy : terraform destroy  [-auto-approve]
+  관리되는 자원을 삭제
