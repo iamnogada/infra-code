@@ -10,16 +10,18 @@ openssl pkcs12 -export -out certificate.pfx -inkey privateKey.key -in certificat
 
 
 1. extract crt from pfx : 
-   openssl pkcs12 -clcerts -nokeys -in $PFX_FILE.pfx -out $PFX_FILE.crt -passin stdin
+   openssl pkcs12 -clcerts -nokeys -in $PFX_FILE.pfx -out $PFX_FILE.crt -password pass:"$PASSWD"
 
 2. extract ca from pfx : 
-   openssl pkcs12 -cacerts -nokeys -in $PFX_FILE.pfx -out $PFX_FILE.ca -passin stdin
+   openssl pkcs12 -cacerts -nokeys -in $PFX_FILE.pfx -out ca-cert.ca -password pass:"$PASSWD"
 
 3. extract private key from pfx : enter temporary password twice
-   openssl pkcs12 -nocerts -in $PFX_FILE.pfx -out $PFX_FILE.key -passin stdin
+   openssl pkcs12 -nocerts -in $PFX_FILE.pfx -out $PFX_FILE.key -password pass:"$PASSWD"
+   
 
 4. remove password in privae key : 
-   openssl rsa -in $PFX_FILE.key -out $PFX_FILE-nopass.key -passin stdin
+   openssl pkcs12 -nocerts -in $PFX_FILE.pfx -out private.key -password pass:"$PASSWD" -passin pass:"$PASSWD" -passout pass:"$PASSWD"
+   openssl rsa -in private.key -out "$PFX_FILE.key" -passin pass:"$PASSWD"
 
 5. create new pem : 
    cat $PFX_FILE-nopass.key $PFX_FILE.crt $PFX_FILE.ca > $PFX_FILE-nopass.pem

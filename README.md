@@ -27,6 +27,7 @@ ref: https://www.terraform.io/docs/providers/azurerm/index.html
 2. create service-principal and keep appId and password
    ``` sh
    SVC_PRINCIPAL_NAME=skgc-vrd-for-terraform
+   SUBSCRIPTION_NAME="skgc-vrd"
    SUBSCRIPTION_ID=$(az account list | jq --arg name $SUBSCRIPTION_NAME '.[] | select(.name == $name) | .id' -r)
    az account set  --subscription=$SUBSCRIPTION_ID 
    az ad sp create-for-rbac --name $SVC_PRINCIPAL_NAME --role="Contributor" --scopes=/subscriptions/$SUBSCRIPTION_ID
