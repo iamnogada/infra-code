@@ -15,6 +15,13 @@ variable "operator"{
     default="skcc-cloudops"
 }
 
+data "azurerm_subscription" "current" {
+}
+
+output "tenant" {
+  value = data.azurerm_subscription.current.tenant_id
+}
+
 output "location" { value = "koreacentral" }
 output "vnet" { value = "vrd-001-vnet" }
 output "udr" { value = "skgc-vrd-prod-koce-001-udr" }
@@ -26,7 +33,7 @@ output "long-name" {
   value = "${var.owner}-${var.service}-${var.env}-${var.center}"
 }
 output "short-name" {
-  value = "${var.owner}${var.service}"
+  value = "${var.owner}${var.service}${var.env}"
 }
 
 output "owner" { value = var.owner}
