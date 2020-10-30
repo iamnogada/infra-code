@@ -85,10 +85,14 @@ ref: https://www.terraform.io/docs/providers/azurerm/index.html
    ```
 
 
-### common resource
-> vnet, default resource-group is already provisioned
-> default resource to provision : subnet, udr
+### aks setting
+1. get service-principal of aks
+2. assign contribute role on aks
 
-1. cd ./common
-2. terraform init
+```sh
+AKS_RESOURCEID=/subscriptions/2dbedacf-40ac-4b61-8bdc-a3025e767aee/resourcegroups/skgc-vrd-prod-koce-aks-rg/providers/Microsoft.ContainerService/managedClusters/skgc-vrd-prod-koce-aks
+PRINCIPAL_ID=$(az role assignment list --scope $AKS_RESOURCEID |jq '.[0]|.principalId' -r)
+AKS_SUBNET_ID=/subscriptions/2dbedacf-40ac-4b61-8bdc-a3025e767aee/resourceGroups/skgc-vrd-prod-koce-network-rg/providers/Microsoft.Network/virtualNetworks/vrd-001-vnet/subnets/skgc-vrd-prod-koce-aks-001-subnet
 
+az role assignment create --assignee $PRINCIPAL_ID --scope $AKS_SUBNET_ID --role Contributor
+```
