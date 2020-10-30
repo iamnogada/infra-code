@@ -48,7 +48,7 @@ resource "azurerm_storage_account" "vrd-dataset" {
 
 
 resource "azurerm_key_vault" "keyvault" {
-  name                = "${module.const.long-name}-ml-keyvault"
+  name                = "${module.const.short-name}mlkeyvault"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   tenant_id           = module.const.tenant

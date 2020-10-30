@@ -17,7 +17,7 @@ module "data" {
 }
 
 resource "azurerm_mariadb_server" "data" {
-  name                = "${module.const.short-name}dev01"
+  name                = "${module.const.long-name}-db01"
   resource_group_name      = azurerm_resource_group.rg.name
   location                 = azurerm_resource_group.rg.location
 
